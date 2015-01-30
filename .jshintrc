@@ -1,0 +1,35 @@
+{
+    "predef": [
+        "window",
+        "body",
+        "doc",
+        "app",
+        "$"
+    ],
+
+    "node": true,
+
+    "bitwise"       : true,
+    "curly"         : true,
+    "eqeqeq"        : true,
+    "forin"         : true,
+    "freeze"        : true,
+    "immed"         : true,
+    "indent"        : 2,
+    "latedef"       : "nofunc",
+    "newcap"        : true,
+    "noarg"         : true,
+    "noempty"       : true,
+    "nonew"         : true,
+    "quotmark"      : "single",
+    "undef"         : true,
+    "unused"        : true,
+    "trailing"      : true,
+    "maxdepth"      : 3,
+    "maxstatements" : 15,
+    "maxcomplexity" : 5,
+    "expr"          : true,
+
+    "boss"          : true
+
+}
