@@ -10,7 +10,7 @@ module.exports = Backbone.View.extend({
 
   initialize: function () {
     this.tools = new Tools();
-    this.canvas = new Canvas({ tools: this.tools });
+    this.canvas = new Canvas({ tools: this.tools, model: this.model });
     this.render();
   },
 
@@ -24,7 +24,7 @@ module.exports = Backbone.View.extend({
 });
 
 }).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/controllers/container.js","/controllers")
-},{"../views/canvas":7,"./tools":3,"1YiZ5S":16,"backbone":11,"buffer":13}],2:[function(require,module,exports){
+},{"../views/canvas":9,"./tools":3,"1YiZ5S":20,"backbone":15,"buffer":17}],2:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 'use strict';
 
@@ -34,32 +34,36 @@ module.exports = {
 };
 
 }).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/controllers/index.js","/controllers")
-},{"./container":1,"./tools":3,"1YiZ5S":16,"buffer":13}],3:[function(require,module,exports){
+},{"./container":1,"./tools":3,"1YiZ5S":20,"buffer":17}],3:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 'use strict';
 
 var Backbone = require('backbone'),
-  Pencil = require('../views/pencil');
+  Pencil = require('../views/pencil-button'),
+  Submit = require('../views/submit-button');
 
 module.exports = Backbone.View.extend({
 
   tagName: 'div',
 
+  id: 'tools',
+
   initialize: function () {
     this.pencil = new Pencil();
-    this.render();
+    this.submit = new Submit();
   },
 
   render: function () {
-    this.$el.css({ position: 'absolute', top: '0', 'z-index': '2147483647' });
+    this.$el.css({ position: 'absolute', top: '0', 'z-index': '2147483646', width: '100%' });
     this.$el.append(this.pencil.render());
+    this.$el.append(this.submit.render());
     return this.$el;
   }
 
 });
 
 }).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/controllers/tools.js","/controllers")
-},{"../views/pencil":10,"1YiZ5S":16,"backbone":11,"buffer":13}],4:[function(require,module,exports){
+},{"../views/pencil-button":12,"../views/submit-button":14,"1YiZ5S":20,"backbone":15,"buffer":17}],4:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 'use strict';
 
@@ -70,34 +74,33 @@ module.exports = {
   loaders: require('./loaders/')
 };
 
-}).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_d6ae2225.js","/")
-},{"./controllers":2,"./lib/":5,"./loaders/":6,"./views/":9,"1YiZ5S":16,"buffer":13}],5:[function(require,module,exports){
+}).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_cc3197d2.js","/")
+},{"./controllers":2,"./lib/":5,"./loaders/":6,"./views/":11,"1YiZ5S":20,"buffer":17}],5:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 'use strict';
 
 var Backbone = require('backbone'),
-  $ = require('jquery'),
+  _$ = require('jquery'),
   ws = null,
-  open = false,
-  models = {};
+  open = false;
 
 Backbone.sync = function (method, model, options) {
+
   if (!ws) {
-    ws = new window.WebSocket(model.url);
+    ws = new window.WebSocket('ws://127.0.0.1:3001');
   }
 
   options = options || {};
 
-  if (!models[model.entity]) {
-    models[model.entity] = model;
-  }
+  var json = model.toJSON();
+
 
   if (open) {
     ws.send(JSON.stringify({
       method: method,
-      entity: model.entity,
-      origin: options.origin,
-      id:     options.id || model.id
+      location: window.location.href,
+      entity: json.entity,
+      data: json.data
     }));
   }
 
@@ -105,22 +108,11 @@ Backbone.sync = function (method, model, options) {
 
     open = true;
 
-    ws.onmessage = function (message) {
-
-      var data = JSON.parse(message.data);
-      console.log(data);
-      var model = models[data.entity];
-
-      data = model.parse(data);
-      if (data.method !== 'delete') {
-        model.add(data.res, { merge: true });
-      }
-    };
-
     ws.send(JSON.stringify({
       method: method,
-      entity: model.entity,
-      origin: options.origin
+      location: window.location.href,
+      entity: json.entity,
+      data: json.data
     }));
 
   };
@@ -128,25 +120,61 @@ Backbone.sync = function (method, model, options) {
 };
 
 if (!window.$) {
-  window.$ = $;
+  window.$ = _$;
 }
 
-Backbone.$ = $;
+Backbone.$ = _$;
 
 module.exports = Backbone;
 
 }).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/lib/index.js","/lib")
-},{"1YiZ5S":16,"backbone":11,"buffer":13,"jquery":17}],6:[function(require,module,exports){
+},{"1YiZ5S":20,"backbone":15,"buffer":17,"jquery":21}],6:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 'use strict';
 
-var Container = require('../controllers/container');
+var Container = require('../controllers/container'),
+  Backbone = require('backbone');
 
-module.exports = new Container();
+module.exports = new Container({
+  model: new Backbone.Model()
+});
 
 
 }).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/loaders/index.js","/loaders")
-},{"../controllers/container":1,"1YiZ5S":16,"buffer":13}],7:[function(require,module,exports){
+},{"../controllers/container":1,"1YiZ5S":20,"backbone":15,"buffer":17}],7:[function(require,module,exports){
+(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
+'use strict';
+
+var Backbone = require('backbone'),
+  _ = require('underscore');
+
+module.exports = Backbone.View.extend({
+
+  tagName: 'button',
+
+  attributes: {
+    type: 'button'
+  },
+
+  intialize: function () {},
+
+  render: function () {
+    return this.$el;
+  }
+
+});
+
+}).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/views/base/button.js","/views/base")
+},{"1YiZ5S":20,"backbone":15,"buffer":17,"underscore":22}],8:[function(require,module,exports){
+(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
+'use strict';
+
+var Backbone = require('backbone');
+
+module.exports = Backbone.View.extend({});
+
+}).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/views/base/select.js","/views/base")
+},{"1YiZ5S":20,"backbone":15,"buffer":17}],9:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 'use strict';
 
@@ -160,9 +188,10 @@ module.exports = Backbone.View.extend({
   initialize: function (options) {
     this.context = this.el.getContext('2d');
     this.tools = options.tools;
-
+    this.cursorPosition = this.cursorPosition.bind(this);
     this.tools.pencil.on('pencil:start', this.captureDrawing, this);
     this.tools.pencil.on('pencil:stop', this.cancelDrawing, this);
+    this.tools.submit.on('submit', this.save, this);
   },
 
   render: function () {
@@ -176,77 +205,72 @@ module.exports = Backbone.View.extend({
     Backbone.View.prototype.remove.apply(this, arguments);
   },
 
-  captureDrawing: function (options) {
+  save: function () {
+    var data = this.el.toDataURL();
+    this.model.save({ entity: 'image', data: data });
+  },
 
-    options = _.extend({
+  captureDrawing: function (options) {
+    this.$el.css({ cursor: 'pointer' });
+
+    this.options = _.extend({
       prevX: 0,
       currX: 0,
       prevY: 0,
       currY: 0,
-      dotFlag: false,
       flag: false,
       color:  '#000',
       width: 1
     }, options);
 
-    this.findCursor = this.cursorPosition.bind(this, options);
-
-    this.$el.on('mousemove', this.findCursor);
-    this.$el.on('mousedown', this.findCursor);
-    this.$el.on('mouseup', this.findCursor);
-    this.$el.on('mouseout', this.findCursor);
+    this.$el.on('mousemove',  this.cursorPosition);
+    this.$el.on('mousedown',  this.cursorPosition);
+    this.$el.on('mouseup',  this.cursorPosition);
+    this.$el.on('mouseout',  this.cursorPosition);
   },
 
   cancelDrawing: function () {
-    this.$el.off('mousemove', this.findCursor);
-    this.$el.off('mousedown', this.findCursor);
-    this.$el.off('mouseup', this.findCursor);
-    this.$el.off('mouseout', this.findCursor);
+    this.$el.css({ cursor: 'default' });
+    this.$el.off('mousemove',  this.cursorPosition);
+    this.$el.off('mousedown',  this.cursorPosition);
+    this.$el.off('mouseup',  this.cursorPosition);
+    this.$el.off('mouseout',  this.cursorPosition);
   },
 
-  draw: function (options) {
+  draw: function () {
     this.context.beginPath();
-    this.context.moveTo(options.prevX, options.prevY);
-    this.context.lineTo(options.currX, options.currY);
-    this.context.strokeStyle = options.color;
-    this.context.lineWidth = options.width;
+    this.context.moveTo(this.options.prevX, this.options.prevY);
+    this.context.lineTo(this.options.currX, this.options.currY);
+    this.context.strokeStyle = this.options.color;
+    this.context.lineWidth = this.options.width;
     this.context.stroke();
     this.context.closePath();
   },
 
-  cursorPosition: function (options, event) {
+  cursorPosition: function (event) {
 
     var dir = event.type.replace('mouse', '');
 
     if (dir === 'down') {
-      options.prevX = options.currX;
-      options.prevY = options.currY;
-      options.currX = event.clientX;
-      options.currY = event.clientY;
-
-      options.flag = true;
-
-      options.dotFlag = true;
-
-      if (options.dotFlag) {
-        this.context.beginPath();
-        this.context.fillStyle = options.color;
-        this.context.fillRect(options.currX, options.currY, 2, 2);
-        this.context.closePath();
-        options.dotFlag = false;
-      }
+      this.options.prevX = this.options.currX;
+      this.options.prevY = this.options.currY;
+      this.options.currX = event.clientX;
+      this.options.currY = event.clientY;
+      this.options.flag = true;
+      this.context.beginPath();
+      this.context.fillStyle = this.options.color;
+      this.context.fillRect(this.options.currX, this.options.currY, 2, 2);
+      this.context.closePath();
     }
     if (dir === 'up' || dir === 'out') {
-      options.flag = false;
+      this.options.flag = false;
     }
-    if (dir === 'move') {
-      if (options.flag) {
-        options.prevX = options.currX;
-        options.prevY = options.currY;
-        options.currX = event.clientX;
-        options.currY = event.clientY;
-        this.draw(options);
-      }
+    if (dir === 'move' && this.options.flag) {
+      this.options.prevX = this.options.currX;
+      this.options.prevY = this.options.currY;
+      this.options.currX = event.clientX;
+      this.options.currY = event.clientY;
+      this.draw(this.options);
     }
   }
 
@@ -254,98 +278,248 @@ module.exports = Backbone.View.extend({
 
 
 }).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/views/canvas.js","/views")
-},{"../lib":5,"1YiZ5S":16,"buffer":13,"underscore":18}],8:[function(require,module,exports){
+},{"../lib":5,"1YiZ5S":20,"buffer":17,"underscore":22}],10:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 'use strict';
 
-var Backbone = require('backbone');
+var Backbone = require('backbone'),
+  _ = require('underscore');
 
 module.exports = Backbone.View.extend({
 
+  template: '' +
+    '<select>' +
+      '<option selected value="#000000">Black</option>' +
+      '<option value="#ff0000">Red</option>' +
+      '<option value="#0000ff">Blue</option>' +
+      '<option value="#ffffff">White</option>' +
+    '</select>',
+
   events: {
-    'change': 'colorChange'
+    'change': 'select'
   },
 
-  tagName: 'input',
-
-  attributes: {
-    type: 'color',
-    value: '#ff0000'
+  initialize: function () {
+    this.render();
+    this.hide();
   },
 
   render: function () {
-    return this.$el;
+    return this.setElement(_.template(this.template)());
   },
 
-  colorChange: function (e) {
+  select: function (e) {
+    if (this.color) {
+      this.$el.removeClass(this.color.replace('#', '_'));
+    }
+    this.color = e.target.value;
+    this.$el.addClass(e.target.value.replace('#', '_'));
     this.trigger('color:change', e.target.value);
+  },
+
+  selected: function () {
+    return this.el[this.el.selectedIndex].value;
+  },
+
+  hide: function () {
+    this.$el.hide();
+  },
+
+  show: function () {
+    this.$el.show();
   }
 
 });
 
 }).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/views/color-picker.js","/views")
-},{"1YiZ5S":16,"backbone":11,"buffer":13}],9:[function(require,module,exports){
+},{"1YiZ5S":20,"backbone":15,"buffer":17,"underscore":22}],11:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 'use strict';
 
 module.exports = {
   canvas: require('./canvas'),
-  pencil: require('./pencil'),
+  pencil: require('./pencil-button'),
   'color-picker': require('./color-picker')
 };
 
 }).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/views/index.js","/views")
-},{"./canvas":7,"./color-picker":8,"./pencil":10,"1YiZ5S":16,"buffer":13}],10:[function(require,module,exports){
+},{"./canvas":9,"./color-picker":10,"./pencil-button":12,"1YiZ5S":20,"buffer":17}],12:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 'use strict';
 
-var Backbone = require('backbone'),
-  ColorPicker = require('./color-picker');
+var ButtonView = require('./base/button'),
+  ColorPicker = require('./color-picker'),
+  SizePicker = require('./size-select'),
+  _ = require('underscore');
 
-module.exports = Backbone.View.extend({
+module.exports = ButtonView.extend({
 
   events: {
-    'click': 'initiateDrawing',
-    'mouseover': 'openColorPicker'
+    'mousedown button': 'toggleDrawing',
+    'mouseover': 'showTools',
+    'mouseout': 'hideTools'
   },
 
-  tagName: 'button',
+  template: '' +
+    '<div id="pencil">' +
+      '<button type="button">&#x270e</button>' +
+    '</div>',
 
   initialize: function () {
-    this.color = '#000';
-    this.colorPicker = new ColorPicker();
-    this.colorPicker.on('color:change', this.setColor, this);
+    this.registerExtras();
   },
 
   render: function () {
-    this.$el.text('Draw');
+    this.setElement(_.template(this.template)());
+    this.$el.css({ display: 'inline-block' });
+    this.addExtras();
     return this.$el;
   },
 
-  initiateDrawing: function () {
-    if (this.$el.hasClass('active')) {
+  registerExtras: function () {
+    this.colorPicker = new ColorPicker();
+    this.colorPicker.on('color:change', this.colorChange, this);
+    this.sizePicker = new SizePicker();
+    this.sizePicker.on('size:change', this.sizeChange, this);
+  },
+
+  addExtras: function () {
+    this.$el.append(this.colorPicker.$el);
+    this.$el.append(this.sizePicker.$el);
+    this.setColor(this.colorPicker.selected());
+    this.setSize(this.sizePicker.selected());
+  },
+
+  toggleDrawing: function (on) {
+    if (on === true || !this.$el.hasClass('active')) {
+      this.trigger('pencil:start', { color: this.color, width: this.size });
+      this.$el.addClass('active');
+    } else {
       this.trigger('pencil:stop');
       this.$el.removeClass('active');
-    } else {
-      this.trigger.call(this, 'pencil:start', { color: this.color });
-      this.$el.addClass('active');
     }
   },
 
   setColor: function (color) {
+    if (this.color) {
+      this.$el.removeClass(this.color.replace('#', '_'));
+    }
     this.color = color;
-    this.trigger.call(this, 'pencil:start', { color: this.color });
+    console.log(this.color);
+    this.$el.addClass(this.color.replace('#', '_'));
   },
 
-  openColorPicker: function () {
-    this.$el.after(this.colorPicker.render());
-    this.colorPicker.$el.fadeIn();
+  setSize: function (size) {
+    if (this.size) {
+      this.$el.removeClass(this.size);
+    }
+    this.size = size;
+    console.log(this.size);
+    this.$el.addClass(this.size);
+  },
+
+  colorChange: function (color) {
+    this.setColor(color);
+    this.toggleDrawing(true);
+  },
+
+  sizeChange: function (size) {
+    this.setSize(size);
+    this.toggleDrawing(true);
+  },
+
+  showTools: function () {
+    this.colorPicker.show();
+    this.sizePicker.show();
+  },
+
+  hideTools: function () {
+    this.colorPicker.hide();
+    this.sizePicker.hide();
   }
 
 });
 
-}).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/views/pencil.js","/views")
-},{"./color-picker":8,"1YiZ5S":16,"backbone":11,"buffer":13}],11:[function(require,module,exports){
+}).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/views/pencil-button.js","/views")
+},{"./base/button":7,"./color-picker":10,"./size-select":13,"1YiZ5S":20,"buffer":17,"underscore":22}],13:[function(require,module,exports){
+(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
+'use strict';
+
+var SelectView = require('./base/select'),
+  _ = require('underscore');
+
+module.exports = SelectView.extend({
+
+  template: '' +
+    '<select>' +
+      '<option selected value="1">S</option>' +
+      '<option value="2">M</option>' +
+      '<option value="3">L</option>' +
+      '<option value="4">XL</option>' +
+    '</select>',
+
+  events: {
+    'change': 'select'
+  },
+
+  initialize: function () {
+    this.render();
+    this.hide();
+  },
+
+  render: function () {
+    return this.setElement(_.template(this.template)());
+  },
+
+  select: function (e) {
+    if (this.width) {
+      this.$el.removeClass(this.width);
+    }
+    this.width = e.target.value;
+    this.$el.addClass(e.target.value);
+    this.trigger('size:change', e.target.value);
+  },
+
+  selected: function () {
+    return this.el[this.el.selectedIndex].value;
+  },
+
+  hide: function () {
+    this.$el.hide();
+  },
+
+  show: function () {
+    this.$el.show();
+  }
+
+});
+
+}).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/views/size-select.js","/views")
+},{"./base/select":8,"1YiZ5S":20,"buffer":17,"underscore":22}],14:[function(require,module,exports){
+(function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
+'use strict';
+
+var ButtonView = require('./base/button');
+
+module.exports = ButtonView.extend({
+
+  events: {
+    'mousedown': 'submit'
+  },
+
+  render: function () {
+    this.$el.text('Submit');
+    return ButtonView.prototype.render.call(this);
+  },
+
+  submit: function () {
+    this.trigger('submit');
+  }
+
+});
+
+}).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/views/submit-button.js","/views")
+},{"./base/button":7,"1YiZ5S":20,"buffer":17}],15:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 //     Backbone.js 1.1.2
 
@@ -1957,7 +2131,7 @@ module.exports = Backbone.View.extend({
 }));
 
 }).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../node_modules/backbone/backbone.js","/../node_modules/backbone")
-},{"1YiZ5S":16,"buffer":13,"underscore":12}],12:[function(require,module,exports){
+},{"1YiZ5S":20,"buffer":17,"underscore":16}],16:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 //     Underscore.js 1.7.0
 //     http://underscorejs.org
@@ -3376,7 +3550,7 @@ module.exports = Backbone.View.extend({
 }.call(this));
 
 }).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../node_modules/backbone/node_modules/underscore/underscore.js","/../node_modules/backbone/node_modules/underscore")
-},{"1YiZ5S":16,"buffer":13}],13:[function(require,module,exports){
+},{"1YiZ5S":20,"buffer":17}],17:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /*!
  * The buffer module from node.js, for the browser.
@@ -4489,7 +4663,7 @@ function assert (test, message) {
 }
 
 }).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer/index.js","/../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer")
-},{"1YiZ5S":16,"base64-js":14,"buffer":13,"ieee754":15}],14:[function(require,module,exports){
+},{"1YiZ5S":20,"base64-js":18,"buffer":17,"ieee754":19}],18:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
@@ -4617,7 +4791,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 }(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
 
 }).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer/node_modules/base64-js/lib/b64.js","/../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer/node_modules/base64-js/lib")
-},{"1YiZ5S":16,"buffer":13}],15:[function(require,module,exports){
+},{"1YiZ5S":20,"buffer":17}],19:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 exports.read = function(buffer, offset, isLE, mLen, nBytes) {
   var e, m,
@@ -4705,7 +4879,7 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
 };
 
 }).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer/node_modules/ieee754/index.js","/../node_modules/gulp-browserify/node_modules/browserify/node_modules/buffer/node_modules/ieee754")
-},{"1YiZ5S":16,"buffer":13}],16:[function(require,module,exports){
+},{"1YiZ5S":20,"buffer":17}],20:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 // shim for using process in browser
 
@@ -4772,7 +4946,7 @@ process.chdir = function (dir) {
 };
 
 }).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../node_modules/gulp-browserify/node_modules/browserify/node_modules/process/browser.js","/../node_modules/gulp-browserify/node_modules/browserify/node_modules/process")
-},{"1YiZ5S":16,"buffer":13}],17:[function(require,module,exports){
+},{"1YiZ5S":20,"buffer":17}],21:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 /*!
  * jQuery JavaScript Library v2.1.3
@@ -13981,7 +14155,7 @@ return jQuery;
 }));
 
 }).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../node_modules/jquery/dist/jquery.js","/../node_modules/jquery/dist")
-},{"1YiZ5S":16,"buffer":13}],18:[function(require,module,exports){
+},{"1YiZ5S":20,"buffer":17}],22:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 //     Underscore.js 1.7.0
 //     http://underscorejs.org
@@ -15400,4 +15574,4 @@ return jQuery;
 }.call(this));
 
 }).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/../node_modules/underscore/underscore.js","/../node_modules/underscore")
-},{"1YiZ5S":16,"buffer":13}]},{},[4])
+},{"1YiZ5S":20,"buffer":17}]},{},[4])

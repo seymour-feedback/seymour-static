@@ -1,28 +1,27 @@
 'use strict';
 
 var Backbone = require('backbone'),
-  $ = require('jquery'),
+  _$ = require('jquery'),
   ws = null,
-  open = false,
-  models = {};
+  open = false;
 
 Backbone.sync = function (method, model, options) {
+
   if (!ws) {
-    ws = new window.WebSocket(model.url);
+    ws = new window.WebSocket('ws://127.0.0.1:3001');
   }
 
   options = options || {};
 
-  if (!models[model.entity]) {
-    models[model.entity] = model;
-  }
+  var json = model.toJSON();
+
 
   if (open) {
     ws.send(JSON.stringify({
       method: method,
-      entity: model.entity,
-      origin: options.origin,
-      id:     options.id || model.id
+      location: window.location.href,
+      entity: json.entity,
+      data: json.data
     }));
   }
 
@@ -30,22 +29,11 @@ Backbone.sync = function (method, model, options) {
 
     open = true;
 
-    ws.onmessage = function (message) {
-
-      var data = JSON.parse(message.data);
-      console.log(data);
-      var model = models[data.entity];
-
-      data = model.parse(data);
-      if (data.method !== 'delete') {
-        model.add(data.res, { merge: true });
-      }
-    };
-
     ws.send(JSON.stringify({
       method: method,
-      entity: model.entity,
-      origin: options.origin
+      location: window.location.href,
+      entity: json.entity,
+      data: json.data
     }));
 
   };
@@ -53,9 +41,9 @@ Backbone.sync = function (method, model, options) {
 };
 
 if (!window.$) {
-  window.$ = $;
+  window.$ = _$;
 }
 
-Backbone.$ = $;
+Backbone.$ = _$;
 
 module.exports = Backbone;

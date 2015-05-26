@@ -8,7 +8,7 @@ module.exports = Backbone.View.extend({
 
   initialize: function () {
     this.tools = new Tools();
-    this.canvas = new Canvas({ tools: this.tools });
+    this.canvas = new Canvas({ tools: this.tools, model: this.model });
     this.render();
   },
 

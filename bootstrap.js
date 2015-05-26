@@ -9,15 +9,10 @@
   var body = doc.getElementsByTagName('body')[0];
 
   function loadScript(url ) {
-    script = doc.createElement('script');
+    script = doc.createElement('script');insta
     script.type = 'text/javascript';
     script.src = url;
     container.id = 'smContainer';
-
-    script.onload = function () {
-      console.log('loaded');
-    };
-
     body.appendChild(script);
     body.appendChild(container);
   }
@@ -35,7 +30,7 @@
   button.style.top = '0';
   button.style.zIndex = '2147483647';
   button.type = 'button';
-  button.innerText = 'Feed me!';
+  button.innerText = 'Seymour!';
   body.appendChild(button);
 
   button.addEventListener('click', function () {

@@ -10,9 +10,10 @@ module.exports = Backbone.View.extend({
   initialize: function (options) {
     this.context = this.el.getContext('2d');
     this.tools = options.tools;
-
+    this.cursorPosition = this.cursorPosition.bind(this);
     this.tools.pencil.on('pencil:start', this.captureDrawing, this);
     this.tools.pencil.on('pencil:stop', this.cancelDrawing, this);
+    this.tools.submit.on('submit', this.save, this);
   },
 
   render: function () {
@@ -26,77 +27,72 @@ module.exports = Backbone.View.extend({
     Backbone.View.prototype.remove.apply(this, arguments);
   },
 
-  captureDrawing: function (options) {
+  save: function () {
+    var data = this.el.toDataURL();
+    this.model.save({ entity: 'image', data: data });
+  },
 
-    options = _.extend({
+  captureDrawing: function (options) {
+    this.$el.css({ cursor: 'pointer' });
+
+    this.options = _.extend({
       prevX: 0,
       currX: 0,
       prevY: 0,
       currY: 0,
-      dotFlag: false,
       flag: false,
       color:  '#000',
       width: 1
     }, options);
 
-    this.findCursor = this.cursorPosition.bind(this, options);
-
-    this.$el.on('mousemove', this.findCursor);
-    this.$el.on('mousedown', this.findCursor);
-    this.$el.on('mouseup', this.findCursor);
-    this.$el.on('mouseout', this.findCursor);
+    this.$el.on('mousemove',  this.cursorPosition);
+    this.$el.on('mousedown',  this.cursorPosition);
+    this.$el.on('mouseup',  this.cursorPosition);
+    this.$el.on('mouseout',  this.cursorPosition);
   },
 
   cancelDrawing: function () {
-    this.$el.off('mousemove', this.findCursor);
-    this.$el.off('mousedown', this.findCursor);
-    this.$el.off('mouseup', this.findCursor);
-    this.$el.off('mouseout', this.findCursor);
+    this.$el.css({ cursor: 'default' });
+    this.$el.off('mousemove',  this.cursorPosition);
+    this.$el.off('mousedown',  this.cursorPosition);
+    this.$el.off('mouseup',  this.cursorPosition);
+    this.$el.off('mouseout',  this.cursorPosition);
   },
 
-  draw: function (options) {
+  draw: function () {
     this.context.beginPath();
-    this.context.moveTo(options.prevX, options.prevY);
-    this.context.lineTo(options.currX, options.currY);
-    this.context.strokeStyle = options.color;
-    this.context.lineWidth = options.width;
+    this.context.moveTo(this.options.prevX, this.options.prevY);
+    this.context.lineTo(this.options.currX, this.options.currY);
+    this.context.strokeStyle = this.options.color;
+    this.context.lineWidth = this.options.width;
     this.context.stroke();
     this.context.closePath();
   },
 
-  cursorPosition: function (options, event) {
+  cursorPosition: function (event) {
 
     var dir = event.type.replace('mouse', '');
 
     if (dir === 'down') {
-      options.prevX = options.currX;
-      options.prevY = options.currY;
-      options.currX = event.clientX;
-      options.currY = event.clientY;
-
-      options.flag = true;
-
-      options.dotFlag = true;
-
-      if (options.dotFlag) {
-        this.context.beginPath();
-        this.context.fillStyle = options.color;
-        this.context.fillRect(options.currX, options.currY, 2, 2);
-        this.context.closePath();
-        options.dotFlag = false;
-      }
+      this.options.prevX = this.options.currX;
+      this.options.prevY = this.options.currY;
+      this.options.currX = event.clientX;
+      this.options.currY = event.clientY;
+      this.options.flag = true;
+      this.context.beginPath();
+      this.context.fillStyle = this.options.color;
+      this.context.fillRect(this.options.currX, this.options.currY, 2, 2);
+      this.context.closePath();
     }
     if (dir === 'up' || dir === 'out') {
-      options.flag = false;
+      this.options.flag = false;
     }
-    if (dir === 'move') {
-      if (options.flag) {
-        options.prevX = options.currX;
-        options.prevY = options.currY;
-        options.currX = event.clientX;
-        options.currY = event.clientY;
-        this.draw(options);
-      }
+    if (dir === 'move' && this.options.flag) {
+      this.options.prevX = this.options.currX;
+      this.options.prevY = this.options.currY;
+      this.options.currX = event.clientX;
+      this.options.currY = event.clientY;
+      this.draw(this.options);
     }
   }
 

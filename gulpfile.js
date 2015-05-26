@@ -16,8 +16,4 @@ gulp.task('js', function () {
     .pipe(gulp.dest(paths.outPath));
 });
 
-gulp.task('watch', function() {
-  gulp.watch([paths.inPath], ['bundleJS']);
-});
-
-gulp.task('default', ['js', 'watch']);
+gulp.task('default', ['js']);

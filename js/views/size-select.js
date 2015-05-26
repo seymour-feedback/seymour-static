@@ -1,16 +1,16 @@
 'use strict';
 
-var Backbone = require('backbone'),
+var SelectView = require('./base/select'),
   _ = require('underscore');
 
-module.exports = Backbone.View.extend({
+module.exports = SelectView.extend({
 
   template: '' +
     '<select>' +
-      '<option selected value="#000000">Black</option>' +
-      '<option value="#ff0000">Red</option>' +
-      '<option value="#0000ff">Blue</option>' +
-      '<option value="#ffffff">White</option>' +
+      '<option selected value="1">S</option>' +
+      '<option value="2">M</option>' +
+      '<option value="3">L</option>' +
+      '<option value="4">XL</option>' +
     '</select>',
 
   events: {
@@ -27,12 +27,12 @@ module.exports = Backbone.View.extend({
   },
 
   select: function (e) {
-    if (this.color) {
-      this.$el.removeClass(this.color.replace('#', '_'));
+    if (this.width) {
+      this.$el.removeClass(this.width);
     }
-    this.color = e.target.value;
-    this.$el.addClass(e.target.value.replace('#', '_'));
-    this.trigger('color:change', e.target.value);
+    this.width = e.target.value;
+    this.$el.addClass(e.target.value);
+    this.trigger('size:change', e.target.value);
   },
 
   selected: function () {

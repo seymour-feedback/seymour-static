@@ -4,7 +4,7 @@
   "description": "Client-side script empowers user to connect and send feedback",
   "main": "server.js",
   "scripts": {
-    "test": "npm test",
+    "test": "echo \"Warning: no test specified\" && exit 0",
     "build": ""
   },
   "repository": {
