@@ -2,7 +2,7 @@ Run `gulp` to build the distributable bundle, loaded by the bootstrap file.
 
 The following scripts will invoke Seymour in the demo site
 
-Sweet!
+Sweet! Awesome!
 
 ```html
   script(src='http://[domain]/bootstrap.js', async, defer)
