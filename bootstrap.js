@@ -9,7 +9,7 @@
   var body = doc.getElementsByTagName('body')[0];
 
   function loadScript(url ) {
-    script = doc.createElement('script');insta
+    script = doc.createElement('script');
     script.type = 'text/javascript';
     script.src = url;
     container.id = 'smContainer';
@@ -35,7 +35,7 @@
 
   button.addEventListener('click', function () {
     if (!loaded) {
-      loadScript('http://localhost:3008/dist/app.js');
+      loadScript('http://seymour-static.herokuapp.com/dist/app.js');
       loaded = true;
     } else {
       removeScript();
