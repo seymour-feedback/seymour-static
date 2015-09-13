@@ -8,13 +8,12 @@ var Backbone = require('backbone'),
 Backbone.sync = function (method, model, options) {
 
   if (!ws) {
-    ws = new window.WebSocket('ws://127.0.0.1:3001');
+    ws = new window.WebSocket((window.location.protocol === 'https://' ? 'wss' : 'ws') + '://127.0.0.1:3001');
   }
 
   options = options || {};
 
   var json = model.toJSON();
-
 
   if (open) {
     ws.send(JSON.stringify({
