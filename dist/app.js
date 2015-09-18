@@ -74,7 +74,7 @@ module.exports = {
   loaders: require('./loaders/')
 };
 
-}).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_2ba47993.js","/")
+}).call(this,require("1YiZ5S"),typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer,arguments[3],arguments[4],arguments[5],arguments[6],"/fake_a1f4c44b.js","/")
 },{"./controllers":2,"./lib/":5,"./loaders/":6,"./views/":11,"1YiZ5S":20,"buffer":17}],5:[function(require,module,exports){
 (function (process,global,Buffer,__argument0,__argument1,__argument2,__argument3,__filename,__dirname){
 'use strict';
@@ -84,10 +84,12 @@ var Backbone = require('backbone'),
   ws = null,
   open = false;
 
+var protocol = location.protocol.replace(/^http/, 'ws');
+
 Backbone.sync = function (method, model, options) {
 
   if (!ws) {
-    ws = new window.WebSocket((window.location.protocol === 'https://' ? 'wss' : 'ws') + '://127.0.0.1:3001');
+    ws = new window.WebSocket(protocol + '127.0.0.1:3002');
   }
 
   options = options || {};
