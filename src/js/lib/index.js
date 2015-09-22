@@ -5,13 +5,13 @@ var Backbone = require('backbone'),
   ws = null,
   open = false;
 
-var config = require('../config');
+var config = require('../../../config');
 var protocol = location.protocol.replace(/^http/, 'ws');
 
 Backbone.sync = function (method, model, options) {
 
   if (!ws) {
-    ws = new window.WebSocket(protocol + config.SOCKET_HOST);
+    ws = new window.WebSocket(protocol + config.socketHost);
   }
 
   options = options || {};

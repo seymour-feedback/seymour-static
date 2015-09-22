@@ -3,8 +3,8 @@
 var gulp = require('gulp'),
   browserify = require('gulp-browserify'),
   paths = {
-    inPath:  'js/app.js',
-    outPath: './dist'
+    inPath:  'src/js/app.js',
+    outPath: 'public/js/'
   };
 
 gulp.task('js', function () {
