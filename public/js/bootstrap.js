@@ -35,7 +35,7 @@
 
   button.addEventListener('click', function () {
     if (!loaded) {
-      loadScript('http://localhost:63914/js/app.js');
+      loadScript('http://seymour-static.herokuapp.com/js/app.js');
       loaded = true;
     } else {
       removeScript();
